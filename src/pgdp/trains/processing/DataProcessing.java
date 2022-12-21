@@ -35,20 +35,23 @@ public class DataProcessing {
                     saveConnections.stream()
                             .map(tc -> tc.stops().stream()
                                     .mapToInt(ts -> ts.getDelay())
-                                    .filter(tsd -> tsd > 0)
-                                    .sum())
-                            .sorted(Integer::compareTo)
+                                    .max())
+                            .map(dmax -> dmax.getAsInt())
                             .collect(Collectors.toList());
+
+            if (sortedConnectionsForDelay.get(sortedConnectionsForDelay.size() - 1) == 0) {
+                return saveConnections.get(0);
+            }
 
             List<TrainConnection> wd_tc = saveConnections.stream()
                     .filter(tc -> (tc.stops().stream()
                             .mapToInt(ts -> ts.getDelay())
-                            .sum()) == sortedConnectionsForDelay.get(sortedConnectionsForDelay.size() - 1))
+                            .max().getAsInt()) == sortedConnectionsForDelay.get(sortedConnectionsForDelay.size() - 1))
                     .collect(Collectors.toList());
+            //System.out.println(wd_tc.get(0).stops().stream().mapToInt(tsList -> tsList.getDelay()).max());
             return wd_tc.get(0);
         } catch (Exception e) {
-            TrainConnection output = saveConnections.get(0);
-            return output;
+            return null;
         }
     }
 
