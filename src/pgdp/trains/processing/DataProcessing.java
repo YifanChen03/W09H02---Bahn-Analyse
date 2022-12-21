@@ -6,6 +6,7 @@ import pgdp.trains.connections.TrainStop;
 
 import java.time.LocalDateTime;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -87,7 +88,29 @@ public class DataProcessing {
 
     public static Map<String, Double> delayComparedToTotalTravelTimeByTransport(Stream<TrainConnection> connections) {
         // TODO Task 5.
-        return null;
+        HashMap<String, Double> output = new HashMap<>();
+        List<TrainConnection> saveConnections = connections.collect(Collectors.toList());
+        List<String> types = saveConnections.stream()
+                .map(tc -> tc.type())
+                .distinct()
+                .collect(Collectors.toList());
+        List<Double> totalactual = types.stream()
+                        .map(type -> saveConnections.stream()
+                                .mapToDouble(tc -> tc.type().equals(type)
+                                        ? tc.totalTimeTraveledActual() : 0)
+                                .sum())
+                        .collect(Collectors.toList());
+        List<Double> totalscheduled = types.stream()
+                        .map(type -> saveConnections.stream()
+                                .mapToDouble(tc -> tc.type().equals(type)
+                                        ? tc.totalTimeTraveledScheduled() : 0)
+                                .sum())
+                        .collect(Collectors.toList());
+        IntStream.range(0, types.size())
+                .mapToObj(n -> output.put(types.get(n),
+                        (totalactual.get(n) - totalscheduled.get(n)) / totalactual.get(n) * 100))
+                .collect(Collectors.toList()); //damit output.put terminiert
+        return output;
     }
 
     public static Map<Integer, Double> averageDelayByHour(Stream<TrainConnection> connections) {
@@ -155,6 +178,7 @@ public class DataProcessing {
         // averageDelayAt sollte 10.0 sein. (Da dreimal angefahren und einmal 30 Minuten Verspätung).
 
         Map<String, Double> delayCompared = delayComparedToTotalTravelTimeByTransport(trainConnections.stream());
+        System.out.println(delayCompared);
         // delayCompared sollte ein Map sein, die für ICE den Wert 16.666666666666668 hat.
         // Da ICE 2 0:30 geplant hatte, aber 1:00 gebraucht hat, ICE 1 0:30 geplant und gebraucht hatte, und
         // ICE 3 1:30 geplant und gebraucht hat. Zusammen also 2:30 geplant und 3:00 gebraucht, und damit
