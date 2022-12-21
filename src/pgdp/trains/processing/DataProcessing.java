@@ -70,7 +70,7 @@ public class DataProcessing {
         output = output / saveConnections.stream()
                 .mapToInt(tc -> tc.stops().size())
                 .sum();
-        return output;
+        return output * 100;
     }
 
     public static double averageDelayAt(Stream<TrainConnection> connections, Station station) {
