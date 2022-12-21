@@ -5,15 +5,25 @@ import pgdp.trains.connections.TrainConnection;
 import pgdp.trains.connections.TrainStop;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class DataProcessing {
 
     public static Stream<TrainConnection> cleanDataset(Stream<TrainConnection> connections) {
         // TODO Task 1.
-        return null;
+        return connections
+                .distinct()
+                .sorted(Comparator.comparing(o -> o.getFirstStop().scheduled()))
+                .map(trainConnection -> trainConnection.withUpdatedStops(
+                        trainConnection.stops().stream()
+                                .filter(trainStop -> trainStop.kind().equals(TrainStop.Kind.CANCELLED))
+                                .collect(Collectors.toList())
+                ));
     }
 
     public static TrainConnection worstDelayedTrain(Stream<TrainConnection> connections) {
