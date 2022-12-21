@@ -28,14 +28,14 @@ public class DataProcessing {
 
     public static TrainConnection worstDelayedTrain(Stream<TrainConnection> connections) {
         // TODO Task 2.
+        List<TrainConnection> saveConnections = connections
+                .collect(Collectors.toList());
         try {
-            List<TrainConnection> saveConnections = connections
-                    .collect(Collectors.toList());
-
             List<Integer> sortedConnectionsForDelay =
                     saveConnections.stream()
                             .map(tc -> tc.stops().stream()
                                     .mapToInt(ts -> ts.getDelay())
+                                    .filter(tsd -> tsd > 0)
                                     .sum())
                             .sorted(Integer::compareTo)
                             .collect(Collectors.toList());
@@ -43,13 +43,11 @@ public class DataProcessing {
             List<TrainConnection> wd_tc = saveConnections.stream()
                     .filter(tc -> (tc.stops().stream()
                             .mapToInt(ts -> ts.getDelay())
-                            .sum()) == sortedConnectionsForDelay.get(sortedConnectionsForDelay.size()))
+                            .sum()) == sortedConnectionsForDelay.get(sortedConnectionsForDelay.size() - 1))
                     .collect(Collectors.toList());
             return wd_tc.get(0);
         } catch (Exception e) {
-            TrainConnection output = connections
-                    .collect(Collectors.toList())
-                    .get(0);
+            TrainConnection output = saveConnections.get(0);
             return output;
         }
     }
@@ -123,6 +121,7 @@ public class DataProcessing {
         // nicht mehr enthalten sein.
 
         TrainConnection worstDelayedTrain = worstDelayedTrain(trainConnections.stream());
+        System.out.println(worstDelayedTrain);
         // worstDelayedTrain sollte ICE 3 sein. (Da der Stop in AUGSBURG_HBF mit 40 Minuten Verspätung am spätesten ist.)
 
         double percentOfKindStops = percentOfKindStops(trainConnections.stream(), TrainStop.Kind.CANCELLED);
