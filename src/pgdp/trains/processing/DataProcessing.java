@@ -28,7 +28,30 @@ public class DataProcessing {
 
     public static TrainConnection worstDelayedTrain(Stream<TrainConnection> connections) {
         // TODO Task 2.
-        return null;
+        try {
+            List<TrainConnection> saveConnections = connections
+                    .collect(Collectors.toList());
+
+            List<Integer> sortedConnectionsForDelay =
+                    saveConnections.stream()
+                            .map(tc -> tc.stops().stream()
+                                    .mapToInt(ts -> ts.getDelay())
+                                    .sum())
+                            .sorted(Integer::compareTo)
+                            .collect(Collectors.toList());
+
+            List<TrainConnection> wd_tc = saveConnections.stream()
+                    .filter(tc -> (tc.stops().stream()
+                            .mapToInt(ts -> ts.getDelay())
+                            .sum()) == sortedConnectionsForDelay.get(sortedConnectionsForDelay.size()))
+                    .collect(Collectors.toList());
+            return wd_tc.get(0);
+        } catch (Exception e) {
+            TrainConnection output = connections
+                    .collect(Collectors.toList())
+                    .get(0);
+            return output;
+        }
     }
 
     public static double percentOfKindStops(Stream<TrainConnection> connections, TrainStop.Kind kind) {
