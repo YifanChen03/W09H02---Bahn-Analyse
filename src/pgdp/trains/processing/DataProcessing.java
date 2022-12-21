@@ -49,6 +49,7 @@ public class DataProcessing {
                             .max().getAsInt()) == sortedConnectionsForDelay.get(sortedConnectionsForDelay.size() - 1))
                     .collect(Collectors.toList());
             //System.out.println(wd_tc.get(0).stops().stream().mapToInt(tsList -> tsList.getDelay()).max());
+            //System.out.println(sortedConnectionsForDelay);
             return wd_tc.get(0);
         } catch (Exception e) {
             return null;
@@ -57,7 +58,19 @@ public class DataProcessing {
 
     public static double percentOfKindStops(Stream<TrainConnection> connections, TrainStop.Kind kind) {
         // TODO Task 3.
-        return 0.0;
+        List<TrainConnection> saveConnections = connections
+                .collect(Collectors.toList());
+        //berechne wie oft ein stop mit kind vorkommt
+        double output = saveConnections.stream()
+                .mapToInt(tc -> tc.stops().stream()
+                                .mapToInt(ts -> ts.kind().equals(kind) ? 1 : 0)
+                                        .sum())
+                        .sum();
+        //teile durch gesamtanzahl von einträgen
+        output = output / saveConnections.stream()
+                .mapToInt(tc -> tc.stops().size())
+                .sum();
+        return output;
     }
 
     public static double averageDelayAt(Stream<TrainConnection> connections, Station station) {
@@ -124,10 +137,11 @@ public class DataProcessing {
         // nicht mehr enthalten sein.
 
         TrainConnection worstDelayedTrain = worstDelayedTrain(trainConnections.stream());
-        System.out.println(worstDelayedTrain);
+        //System.out.println(worstDelayedTrain);
         // worstDelayedTrain sollte ICE 3 sein. (Da der Stop in AUGSBURG_HBF mit 40 Minuten Verspätung am spätesten ist.)
 
-        double percentOfKindStops = percentOfKindStops(trainConnections.stream(), TrainStop.Kind.CANCELLED);
+        double percentOfKindStops = percentOfKindStops(trainConnections.stream(), TrainStop.Kind.REGULAR);
+        System.out.println(percentOfKindStops);
         // percentOfKindStops REGULAR sollte 85.71428571428571 sein, CANCELLED 14.285714285714285.
 
         double averageDelayAt = averageDelayAt(trainConnections.stream(), Station.NUERNBERG_HBF);
