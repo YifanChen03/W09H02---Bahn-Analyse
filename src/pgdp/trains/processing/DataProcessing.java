@@ -18,10 +18,10 @@ public class DataProcessing {
         // TODO Task 1.
         return connections
                 .distinct()
-                .sorted(Comparator.comparing(o -> o.getFirstStop().scheduled()))
-                .map(trainConnection -> trainConnection.withUpdatedStops(
-                        trainConnection.stops().stream()
-                                .filter(trainStop -> trainStop.kind().equals(TrainStop.Kind.CANCELLED))
+                .sorted(Comparator.comparing(tc -> tc.getFirstStop().scheduled()))
+                .map(tc -> tc.withUpdatedStops(
+                        tc.stops().stream()
+                                .filter(ts -> !ts.kind().equals(TrainStop.Kind.CANCELLED))
                                 .collect(Collectors.toList())
                 ));
     }
