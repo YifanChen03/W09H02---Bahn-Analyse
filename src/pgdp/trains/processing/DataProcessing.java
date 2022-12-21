@@ -35,7 +35,7 @@ public class DataProcessing {
                     saveConnections.stream()
                             .map(tc -> tc.stops().stream()
                                     .mapToInt(ts -> ts.getDelay())
-                                    //.filter(tsd -> tsd > 0)
+                                    .filter(tsd -> tsd > 0)
                                     .sum())
                             .sorted(Integer::compareTo)
                             .collect(Collectors.toList());
