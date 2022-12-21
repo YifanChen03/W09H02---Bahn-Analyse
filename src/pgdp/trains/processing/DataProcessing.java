@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 public class DataProcessing {
@@ -75,7 +76,13 @@ public class DataProcessing {
 
     public static double averageDelayAt(Stream<TrainConnection> connections, Station station) {
         // TODO Task 4.
-        return 0.0;
+        double output = connections
+                .mapToInt(tc -> tc.stops().stream()
+                        .mapToInt(ts -> ts.station().equals(station) ? ts.getDelay() : 0)
+                        .sum())
+                .average()
+                .getAsDouble();
+        return output;
     }
 
     public static Map<String, Double> delayComparedToTotalTravelTimeByTransport(Stream<TrainConnection> connections) {
@@ -141,7 +148,7 @@ public class DataProcessing {
         // worstDelayedTrain sollte ICE 3 sein. (Da der Stop in AUGSBURG_HBF mit 40 Minuten Verspätung am spätesten ist.)
 
         double percentOfKindStops = percentOfKindStops(trainConnections.stream(), TrainStop.Kind.REGULAR);
-        System.out.println(percentOfKindStops);
+        //System.out.println(percentOfKindStops);
         // percentOfKindStops REGULAR sollte 85.71428571428571 sein, CANCELLED 14.285714285714285.
 
         double averageDelayAt = averageDelayAt(trainConnections.stream(), Station.NUERNBERG_HBF);
