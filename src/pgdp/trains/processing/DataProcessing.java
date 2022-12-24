@@ -5,10 +5,7 @@ import pgdp.trains.connections.TrainConnection;
 import pgdp.trains.connections.TrainStop;
 
 import java.time.LocalDateTime;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -39,6 +36,7 @@ public class DataProcessing {
                                     .mapToInt(ts -> ts.getDelay())
                                     .max())
                             .map(dmax -> dmax.getAsInt())
+                            .sorted(Comparator.comparingInt(n -> n))
                             .collect(Collectors.toList());
 
             if (sortedConnectionsForDelay.get(sortedConnectionsForDelay.size() - 1) == 0) {
@@ -60,27 +58,20 @@ public class DataProcessing {
 
     public static double percentOfKindStops(Stream<TrainConnection> connections, TrainStop.Kind kind) {
         // TODO Task 3.
-        List<TrainConnection> saveConnections = connections
-                .collect(Collectors.toList());
-        //berechne wie oft ein stop mit kind vorkommt
-        double output = saveConnections.stream()
-                .mapToInt(tc -> tc.stops().stream()
-                                .mapToInt(ts -> ts.kind().equals(kind) ? 1 : 0)
-                                        .sum())
-                        .sum();
-        //teile durch gesamtanzahl von einträgen
-        output = output / saveConnections.stream()
-                .mapToInt(tc -> tc.stops().size())
-                .sum();
+        double output = connections
+                .flatMap(tc -> tc.stops().stream())
+                .mapToInt(ts -> ts.kind().equals(kind) ? 1 : 0)
+                .average()
+                .orElse(-1);
         return output * 100;
     }
 
     public static double averageDelayAt(Stream<TrainConnection> connections, Station station) {
         // TODO Task 4.
         double output = connections
-                .mapToInt(tc -> tc.stops().stream()
-                        .mapToInt(ts -> ts.station().equals(station) ? ts.getDelay() : 0)
-                        .sum())
+                .flatMap(tc -> tc.stops().stream())
+                .filter(ts -> ts.station().equals(station))
+                .mapToInt(ts -> ts.getDelay())
                 .average()
                 .getAsDouble();
         return output;
@@ -89,7 +80,9 @@ public class DataProcessing {
     public static Map<String, Double> delayComparedToTotalTravelTimeByTransport(Stream<TrainConnection> connections) {
         // TODO Task 5.
         HashMap<String, Double> output = new HashMap<>();
-        List<TrainConnection> saveConnections = connections.collect(Collectors.toList());
+        connections
+                .collect(Collectors.groupingBy(tc -> tc.type()));
+        /*List<TrainConnection> saveConnections = connections.collect(Collectors.toList());
         List<String> types = saveConnections.stream()
                 .map(tc -> tc.type())
                 .distinct()
@@ -109,12 +102,13 @@ public class DataProcessing {
         IntStream.range(0, types.size())
                 .mapToObj(n -> output.put(types.get(n),
                         (totalactual.get(n) - totalscheduled.get(n)) / totalactual.get(n) * 100))
-                .collect(Collectors.toList()); //damit output.put terminiert
+                .collect(Collectors.toList()); //damit output.put terminiert*/
         return output;
     }
 
     public static Map<Integer, Double> averageDelayByHour(Stream<TrainConnection> connections) {
         // TODO Task 6.
+
         return null;
     }
 
@@ -170,11 +164,12 @@ public class DataProcessing {
         //System.out.println(worstDelayedTrain);
         // worstDelayedTrain sollte ICE 3 sein. (Da der Stop in AUGSBURG_HBF mit 40 Minuten Verspätung am spätesten ist.)
 
-        double percentOfKindStops = percentOfKindStops(trainConnections.stream(), TrainStop.Kind.REGULAR);
+        double percentOfKindStops = percentOfKindStops(trainConnections.stream(), TrainStop.Kind.CANCELLED);
         //System.out.println(percentOfKindStops);
         // percentOfKindStops REGULAR sollte 85.71428571428571 sein, CANCELLED 14.285714285714285.
 
         double averageDelayAt = averageDelayAt(trainConnections.stream(), Station.NUERNBERG_HBF);
+        System.out.println(averageDelayAt);
         // averageDelayAt sollte 10.0 sein. (Da dreimal angefahren und einmal 30 Minuten Verspätung).
 
         Map<String, Double> delayCompared = delayComparedToTotalTravelTimeByTransport(trainConnections.stream());
