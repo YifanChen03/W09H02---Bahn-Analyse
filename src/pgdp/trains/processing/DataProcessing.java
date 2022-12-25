@@ -83,9 +83,17 @@ public class DataProcessing {
 
     public static Map<String, Double> delayComparedToTotalTravelTimeByTransport(Stream<TrainConnection> connections) {
         // TODO Task 5.
-        HashMap<String, Double> output = new HashMap<>();
-        connections
-                .collect(Collectors.groupingBy(tc -> tc.type()));
+        Map<?, ?> output;
+        output = connections
+                .collect(Collectors.groupingBy(tc -> tc.type()))
+                .entrySet().stream()
+                .collect(Collectors.toMap(eSK -> eSK.getKey(), eSV -> (eSV.getValue().stream()
+                        .mapToDouble(tc -> (tc.totalTimeTraveledActual()))
+                        .sum() - eSV.getValue().stream()
+                        .mapToDouble(tc -> (tc.totalTimeTraveledScheduled()))
+                        .sum()) / eSV.getValue().stream()
+                        .mapToDouble(tc -> (tc.totalTimeTraveledActual()))
+                        .sum() * 100));
         /*List<TrainConnection> saveConnections = connections.collect(Collectors.toList());
         List<String> types = saveConnections.stream()
                 .map(tc -> tc.type())
@@ -107,7 +115,7 @@ public class DataProcessing {
                 .mapToObj(n -> output.put(types.get(n),
                         (totalactual.get(n) - totalscheduled.get(n)) / totalactual.get(n) * 100))
                 .collect(Collectors.toList()); //damit output.put terminiert*/
-        return output;
+        return (Map<String, Double>) output;
     }
 
     public static Map<Integer, Double> averageDelayByHour(Stream<TrainConnection> connections) {
@@ -173,7 +181,7 @@ public class DataProcessing {
         // percentOfKindStops REGULAR sollte 85.71428571428571 sein, CANCELLED 14.285714285714285.
 
         double averageDelayAt = averageDelayAt(trainConnections.stream(), Station.NUERNBERG_HBF);
-        System.out.println(averageDelayAt);
+        //System.out.println(averageDelayAt);
         // averageDelayAt sollte 10.0 sein. (Da dreimal angefahren und einmal 30 Minuten Verspätung).
 
         Map<String, Double> delayCompared = delayComparedToTotalTravelTimeByTransport(trainConnections.stream());
