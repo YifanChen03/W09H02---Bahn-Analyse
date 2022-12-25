@@ -58,12 +58,16 @@ public class DataProcessing {
 
     public static double percentOfKindStops(Stream<TrainConnection> connections, TrainStop.Kind kind) {
         // TODO Task 3.
-        double output = connections
-                .flatMap(tc -> tc.stops().stream())
-                .mapToInt(ts -> ts.kind().equals(kind) ? 1 : 0)
-                .average()
-                .orElse(-1);
-        return output * 100;
+        try {
+            double output = connections
+                    .flatMap(tc -> tc.stops().stream())
+                    .mapToInt(ts -> ts.kind().equals(kind) ? 1 : 0)
+                    .average()
+                    .orElse(-1);
+            return output * 100;
+        } catch (Exception e) {
+            return 0.0;
+        }
     }
 
     public static double averageDelayAt(Stream<TrainConnection> connections, Station station) {
@@ -120,17 +124,21 @@ public class DataProcessing {
 
     public static Map<Integer, Double> averageDelayByHour(Stream<TrainConnection> connections) {
         // TODO Task 6.
-        Map<?, ?> output;
-        //mit groupingBy nach Trainstop.actual() gruppieren
-        output = connections
-                .flatMap(tc -> tc.stops().stream())
-                .collect(Collectors.groupingBy(ts -> ts.actual().getHour()))
-                .entrySet().stream()
-                .collect(Collectors.toMap(eS -> eS.getKey(), eS -> eS.getValue().stream()
-                        .mapToDouble(ts -> ts.getDelay())
-                        .average()));
+        try {
+            Map<?, ?> output;
+            //mit groupingBy nach Trainstop.actual() gruppieren
+            output = connections
+                    .flatMap(tc -> tc.stops().stream())
+                    .collect(Collectors.groupingBy(ts -> ts.actual().getHour()))
+                    .entrySet().stream()
+                    .collect(Collectors.toMap(eS -> eS.getKey(), eS -> eS.getValue().stream()
+                            .mapToDouble(ts -> ts.getDelay())
+                            .average()));
 
-        return (Map<Integer, Double>) output;
+            return (Map<Integer, Double>) output;
+        } catch (Exception e) {
+            return new HashMap<>();
+        }
     }
 
     public static void main(String[] args) {
