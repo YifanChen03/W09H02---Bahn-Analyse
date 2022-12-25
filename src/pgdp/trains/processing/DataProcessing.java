@@ -137,7 +137,7 @@ public class DataProcessing {
 
             return (Map<Integer, Double>) output;
         } catch (Exception e) {
-            return new HashMap<>();
+            return null;
         }
     }
 
