@@ -133,7 +133,8 @@ public class DataProcessing {
                     .entrySet().stream()
                     .collect(Collectors.toMap(eS -> eS.getKey(), eS -> eS.getValue().stream()
                             .mapToDouble(ts -> ts.getDelay())
-                            .average()));
+                            .average()
+                            .orElse(-1)));
 
             return (Map<Integer, Double>) output;
         } catch (Exception e) {
@@ -209,6 +210,7 @@ public class DataProcessing {
         // (3:00 - 2:30) / 3:00 = 16.666666666666668.
 
         Map<Integer, Double> averageDelayByHourOfDay = averageDelayByHour(trainConnections.stream());
+        System.out.println(averageDelayByHourOfDay);
         // averageDelayByHourOfDay sollte ein Map sein, die für 10, 11 den Wert 0.0 hat, für 12 den Wert 15.0 und
         // für 13 den Wert 20.0.
 
