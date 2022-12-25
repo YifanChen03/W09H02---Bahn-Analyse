@@ -68,13 +68,17 @@ public class DataProcessing {
 
     public static double averageDelayAt(Stream<TrainConnection> connections, Station station) {
         // TODO Task 4.
-        double output = connections
-                .flatMap(tc -> tc.stops().stream())
-                .filter(ts -> ts.station().equals(station))
-                .mapToInt(ts -> ts.getDelay())
-                .average()
-                .getAsDouble();
-        return output;
+        try {
+            double output = connections
+                    .flatMap(tc -> tc.stops().stream())
+                    .filter(ts -> ts.station().equals(station))
+                    .mapToInt(ts -> ts.getDelay())
+                    .average()
+                    .getAsDouble();
+            return output;
+        } catch (Exception e) {
+            return 0.0;
+        }
     }
 
     public static Map<String, Double> delayComparedToTotalTravelTimeByTransport(Stream<TrainConnection> connections) {
