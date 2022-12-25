@@ -87,11 +87,11 @@ public class DataProcessing {
         output = connections
                 .collect(Collectors.groupingBy(tc -> tc.type()))
                 .entrySet().stream()
-                .collect(Collectors.toMap(eSK -> eSK.getKey(), eSV -> (eSV.getValue().stream()
+                .collect(Collectors.toMap(eS -> eS.getKey(), eS -> (eS.getValue().stream()
                         .mapToDouble(tc -> (tc.totalTimeTraveledActual()))
-                        .sum() - eSV.getValue().stream()
+                        .sum() - eS.getValue().stream()
                         .mapToDouble(tc -> (tc.totalTimeTraveledScheduled()))
-                        .sum()) / eSV.getValue().stream()
+                        .sum()) / eS.getValue().stream()
                         .mapToDouble(tc -> (tc.totalTimeTraveledActual()))
                         .sum() * 100));
         /*List<TrainConnection> saveConnections = connections.collect(Collectors.toList());
@@ -120,8 +120,17 @@ public class DataProcessing {
 
     public static Map<Integer, Double> averageDelayByHour(Stream<TrainConnection> connections) {
         // TODO Task 6.
+        Map<?, ?> output;
+        //mit groupingBy nach Trainstop.actual() gruppieren
+        output = connections
+                .flatMap(tc -> tc.stops().stream())
+                .collect(Collectors.groupingBy(ts -> ts.actual().getHour()))
+                .entrySet().stream()
+                .collect(Collectors.toMap(eS -> eS.getKey(), eS -> eS.getValue().stream()
+                        .mapToDouble(ts -> ts.getDelay())
+                        .average()));
 
-        return null;
+        return (Map<Integer, Double>) output;
     }
 
     public static void main(String[] args) {
@@ -185,7 +194,7 @@ public class DataProcessing {
         // averageDelayAt sollte 10.0 sein. (Da dreimal angefahren und einmal 30 Minuten Verspätung).
 
         Map<String, Double> delayCompared = delayComparedToTotalTravelTimeByTransport(trainConnections.stream());
-        System.out.println(delayCompared);
+        //System.out.println(delayCompared);
         // delayCompared sollte ein Map sein, die für ICE den Wert 16.666666666666668 hat.
         // Da ICE 2 0:30 geplant hatte, aber 1:00 gebraucht hat, ICE 1 0:30 geplant und gebraucht hatte, und
         // ICE 3 1:30 geplant und gebraucht hat. Zusammen also 2:30 geplant und 3:00 gebraucht, und damit
