@@ -78,7 +78,7 @@ public class DataProcessing {
                     .filter(ts -> ts.station().equals(station))
                     .mapToInt(ts -> ts.getDelay())
                     .average()
-                    .getAsDouble();
+                    .orElse(-1);
             return output;
         } catch (Exception e) {
             return 0.0;
