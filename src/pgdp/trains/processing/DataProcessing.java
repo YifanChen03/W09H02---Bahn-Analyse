@@ -58,31 +58,23 @@ public class DataProcessing {
 
     public static double percentOfKindStops(Stream<TrainConnection> connections, TrainStop.Kind kind) {
         // TODO Task 3.
-        try {
-            double output = connections
-                    .flatMap(tc -> tc.stops().stream())
-                    .mapToInt(ts -> ts.kind().equals(kind) ? 1 : 0)
-                    .average()
-                    .orElse(-1);
-            return output * 100;
-        } catch (Exception e) {
-            return 0.0;
-        }
+        double output = connections
+                .flatMap(tc -> tc.stops().stream())
+                .mapToInt(ts -> ts.kind().equals(kind) ? 1 : 0)
+                .average()
+                .orElse(0.0);
+        return output * 100;
     }
 
     public static double averageDelayAt(Stream<TrainConnection> connections, Station station) {
         // TODO Task 4.
-        try {
-            double output = connections
-                    .flatMap(tc -> tc.stops().stream())
-                    .filter(ts -> ts.station().equals(station))
-                    .mapToInt(ts -> ts.getDelay())
-                    .average()
-                    .orElse(0.0);
-            return output;
-        } catch (Exception e) {
-            return 0.0;
-        }
+        double output = connections
+                .flatMap(tc -> tc.stops().stream())
+                .filter(ts -> ts.station().equals(station))
+                .mapToInt(ts -> ts.getDelay())
+                .average()
+                .orElse(0.0);
+        return output;
     }
 
     public static Map<String, Double> delayComparedToTotalTravelTimeByTransport(Stream<TrainConnection> connections) {
@@ -98,6 +90,8 @@ public class DataProcessing {
                         .sum()) / eS.getValue().stream()
                         .mapToDouble(tc -> (tc.totalTimeTraveledActual()))
                         .sum() * 100));
+
+        return (Map<String, Double>) output;
         /*List<TrainConnection> saveConnections = connections.collect(Collectors.toList());
         List<String> types = saveConnections.stream()
                 .map(tc -> tc.type())
@@ -119,27 +113,22 @@ public class DataProcessing {
                 .mapToObj(n -> output.put(types.get(n),
                         (totalactual.get(n) - totalscheduled.get(n)) / totalactual.get(n) * 100))
                 .collect(Collectors.toList()); //damit output.put terminiert*/
-        return (Map<String, Double>) output;
     }
 
     public static Map<Integer, Double> averageDelayByHour(Stream<TrainConnection> connections) {
         // TODO Task 6.
-        try {
-            Map<?, ?> output;
-            //mit groupingBy nach Trainstop.actual() gruppieren
-            output = connections
-                    .flatMap(tc -> tc.stops().stream())
-                    .collect(Collectors.groupingBy(ts -> ts.actual().getHour()))
-                    .entrySet().stream()
-                    .collect(Collectors.toMap(eS -> eS.getKey(), eS -> eS.getValue().stream()
-                            .mapToDouble(ts -> ts.getDelay())
-                            .average()
-                            .orElse(-1)));
+        Map<?, ?> output;
+        //mit groupingBy nach Trainstop.actual() gruppieren
+        output = connections
+                .flatMap(tc -> tc.stops().stream())
+                .collect(Collectors.groupingBy(ts -> ts.actual().getHour()))
+                .entrySet().stream()
+                .collect(Collectors.toMap(eS -> eS.getKey(), eS -> eS.getValue().stream()
+                        .mapToDouble(ts -> ts.getDelay())
+                        .average()
+                        .orElse(0.0)));
 
-            return (Map<Integer, Double>) output;
-        } catch (Exception e) {
-            return null;
-        }
+        return (Map<Integer, Double>) output;
     }
 
     public static void main(String[] args) {
