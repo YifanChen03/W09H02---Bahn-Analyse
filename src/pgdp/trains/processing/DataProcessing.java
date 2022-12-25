@@ -27,7 +27,16 @@ public class DataProcessing {
 
     public static TrainConnection worstDelayedTrain(Stream<TrainConnection> connections) {
         // TODO Task 2.
-        List<TrainConnection> saveConnections = connections
+        //sortiere tc nach ihren maximalen delays
+        List<TrainConnection> wd_tc = connections
+                .sorted(Comparator.comparingInt(tc -> tc.stops().stream()
+                        .mapToInt(ts -> ts.getDelay())
+                        .max()
+                        .orElse(0)))
+                .collect(Collectors.toList());
+
+        return wd_tc.get(wd_tc.size() - 1);
+        /*List<TrainConnection> saveConnections = connections
                 .collect(Collectors.toList());
         try {
             List<Integer> sortedConnectionsForDelay =
@@ -53,7 +62,7 @@ public class DataProcessing {
             return wd_tc.get(0);
         } catch (Exception e) {
             return null;
-        }
+        }*/
     }
 
     public static double percentOfKindStops(Stream<TrainConnection> connections, TrainStop.Kind kind) {
@@ -180,7 +189,7 @@ public class DataProcessing {
         // nicht mehr enthalten sein.
 
         TrainConnection worstDelayedTrain = worstDelayedTrain(trainConnections.stream());
-        //System.out.println(worstDelayedTrain);
+        System.out.println(worstDelayedTrain);
         // worstDelayedTrain sollte ICE 3 sein. (Da der Stop in AUGSBURG_HBF mit 40 Minuten Verspätung am spätesten ist.)
 
         double percentOfKindStops = percentOfKindStops(trainConnections.stream(), TrainStop.Kind.CANCELLED);
