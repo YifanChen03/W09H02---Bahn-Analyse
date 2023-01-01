@@ -100,11 +100,15 @@ public class DataProcessing {
                         .mapToDouble(tc -> (tc.totalTimeTraveledActual()))
                         .sum() * 100));
         //handle NaN
-        for (Map.Entry<String, Double> entry : output.entrySet()) {
-            if (entry.getValue().isNaN()) {
-                entry.setValue(0.0);
-            }
-        }
+        output = output.entrySet().stream()
+                .map(entry -> {
+                    if (entry.getValue().isNaN()) {
+                        entry.setValue(0.0);
+                    }
+                    return entry;
+                })
+                .collect(Collectors.toMap(entry -> entry.getKey(), entry -> entry.getValue()));
+
         return output;
         /*List<TrainConnection> saveConnections = connections.collect(Collectors.toList());
         List<String> types = saveConnections.stream()
