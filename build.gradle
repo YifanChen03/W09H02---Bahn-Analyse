@@ -9,6 +9,7 @@ repositories {
 
 dependencies {
     implementation 'org.json:json:20220924'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.8.1'
 }
 
 sourceSets {
@@ -19,7 +20,10 @@ sourceSets {
     }
     test {
         java {
-            srcDirs = []
+            srcDirs = ['test']
         }
     }
+}
+test {
+    useJUnitPlatform()
 }

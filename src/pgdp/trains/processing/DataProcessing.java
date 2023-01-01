@@ -88,7 +88,7 @@ public class DataProcessing {
 
     public static Map<String, Double> delayComparedToTotalTravelTimeByTransport(Stream<TrainConnection> connections) {
         // TODO Task 5.
-        Map<?, ?> output;
+        Map<String, Double> output;
         output = connections
                 .collect(Collectors.groupingBy(tc -> tc.type()))
                 .entrySet().stream()
@@ -99,8 +99,13 @@ public class DataProcessing {
                         .sum()) / eS.getValue().stream()
                         .mapToDouble(tc -> (tc.totalTimeTraveledActual()))
                         .sum() * 100));
-
-        return (Map<String, Double>) output;
+        //handle NaN
+        for (Map.Entry<String, Double> entry : output.entrySet()) {
+            if (entry.getValue().isNaN()) {
+                entry.setValue(0.0);
+            }
+        }
+        return output;
         /*List<TrainConnection> saveConnections = connections.collect(Collectors.toList());
         List<String> types = saveConnections.stream()
                 .map(tc -> tc.type())
