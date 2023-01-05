@@ -93,12 +93,18 @@ public class DataProcessing {
                 .collect(Collectors.groupingBy(tc -> tc.type()))
                 .entrySet().stream()
                 .collect(Collectors.toMap(eS -> eS.getKey(), eS -> (eS.getValue().stream()
-                        .mapToDouble(tc -> (tc.totalTimeTraveledActual()))
-                        .sum() - eS.getValue().stream()
-                        .mapToDouble(tc -> (tc.totalTimeTraveledScheduled()))
-                        .sum()) / eS.getValue().stream()
-                        .mapToDouble(tc -> (tc.totalTimeTraveledActual()))
-                        .sum() * 100));
+                        .mapToDouble(tc -> {
+                            if (tc.totalTimeTraveledActual() - tc.totalTimeTraveledScheduled() < 0) {
+                                return 0;
+                            }
+                            //System.out.println("1. " + (tc.totalTimeTraveledActual() - tc.totalTimeTraveledScheduled()));
+                            return tc.totalTimeTraveledActual() - tc.totalTimeTraveledScheduled();})
+                        .sum() / eS.getValue().stream()
+                        .mapToDouble(tc ->{
+                            //System.out.println("2. "+ tc.totalTimeTraveledActual());
+                            return tc.totalTimeTraveledActual();
+                        } )
+                        .sum() * 100)));
         //handle NaN
         output = output.entrySet().stream()
                 .map(entry -> {
