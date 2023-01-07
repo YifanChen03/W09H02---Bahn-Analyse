@@ -35,7 +35,11 @@ public class DataProcessing {
                         .orElse(0)))
                 .collect(Collectors.toList());
 
-        return wd_tc.get(wd_tc.size() - 1);
+        if (wd_tc.size() > 0) {
+            return wd_tc.get(wd_tc.size() - 1);
+        } else {
+            return null;
+        }
         /*List<TrainConnection> saveConnections = connections
                 .collect(Collectors.toList());
         try {
