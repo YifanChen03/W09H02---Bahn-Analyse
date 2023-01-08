@@ -104,10 +104,8 @@ public class DataProcessing {
                             //System.out.println("1. " + (tc.totalTimeTraveledActual() - tc.totalTimeTraveledScheduled()));
                             return tc.totalTimeTraveledActual() - tc.totalTimeTraveledScheduled();})
                         .sum() / eS.getValue().stream()
-                        .mapToDouble(tc ->{
-                            //System.out.println("2. "+ tc.totalTimeTraveledActual());
-                            return tc.totalTimeTraveledActual();
-                        } )
+                        .mapToDouble(tc -> tc.totalTimeTraveledActual() > tc.totalTimeTraveledScheduled() ?
+                                tc.totalTimeTraveledActual() : tc.totalTimeTraveledScheduled())
                         .sum() * 100)));
         //handle NaN
         output = output.entrySet().stream()
